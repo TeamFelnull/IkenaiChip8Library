@@ -14,7 +14,7 @@ public class Chip8 {
     private final List<C8Listener> c8CycleListeners = new ArrayList<>();
     protected boolean[] key = new boolean[16];
     protected boolean drawFlag = true;
-    public boolean[] graphic = new boolean[64 * 32];
+    protected boolean[] graphic = new boolean[64 * 32];
     private long cycleSpeed = 2;
     protected final Memory memory;
     private final CPU cpu;
@@ -23,6 +23,7 @@ public class Chip8 {
     private boolean resetFlag;
     private byte[] romData;
     protected boolean nonThrow;
+    private boolean pause;
 
     public Chip8() {
         this.memory = new Memory(this);
@@ -94,6 +95,11 @@ public class Chip8 {
             init();
         try {
             while (run) {
+                if (pause) {
+                    Thread.sleep(10);
+                    continue;
+                }
+
                 if (resetFlag) {
                     init = false;
                     init();
@@ -117,6 +123,44 @@ public class Chip8 {
         } finally {
             run = false;
         }
+    }
+
+    /**
+     * Pause emulation
+     */
+    public void pause() {
+        this.pause = true;
+    }
+
+    /**
+     * Get if drawn
+     * (64*32)
+     *
+     * @param x Xpos
+     * @param y Ypos
+     * @return drawn
+     */
+    public boolean getGraphic(int x, int y) {
+        return graphic[(y * 64) + x];
+    }
+
+    /**
+     * Set drawn
+     * (64*32)
+     *
+     * @param x Xpos
+     * @param y YposF
+     * @return drawn
+     */
+    public void setGraphic(int x, int y, boolean draw) {
+        graphic[(y * 64) + x] = draw;
+    }
+
+    /**
+     * Unpause emulation
+     */
+    public void unpause() {
+        this.pause = false;
     }
 
     /**
@@ -164,6 +208,24 @@ public class Chip8 {
      */
     public boolean isBeeping() {
         return cpu.isBeeping();
+    }
+
+    /**
+     * Whether there is a paused
+     *
+     * @return Is paused
+     */
+    public boolean isPause() {
+        return pause;
+    }
+
+    /**
+     * Whether there is a run
+     *
+     * @return Is run
+     */
+    public boolean isRun() {
+        return run;
     }
 
     /**
@@ -216,8 +278,8 @@ public class Chip8 {
      *
      * @param speedHz Cycle speed (Hz)
      */
-    public void setCycleSpeedHz(long speedHz) {
-        this.cycleSpeed = (long) (1d / speedHz * 1000);
+    public void setCycleSpeedHz(double speedHz) {
+        this.cycleSpeed = (long) (1d / speedHz * 1000d);
     }
 
     private class RunThread extends Thread {

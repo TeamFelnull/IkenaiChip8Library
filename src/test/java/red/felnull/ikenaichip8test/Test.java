@@ -23,7 +23,7 @@ public class Test {
         int w = 64 * 10 + 15;
         int h = 32 * 10 + 37;
         frame.setBounds(d.width / 2 - w / 2, d.height / 2 - h / 2, w, h);
-        chip8.setCycleSpeed(10);
+        chip8.setCycleSpeedHz(50);
         C8Canvas canvas = new C8Canvas(chip8);
         frame.add(canvas);
         canvas.setSize(w, h);
@@ -95,6 +95,8 @@ public class Test {
             else if (key == 'j') chip8.runAsync();
             else if (key == 'k') chip8.reset();
             else if (key == 'i') chip8.setCycleSpeed(chip8.getCycleSpeed() / 2);
+            else if (key == 'p') chip8.pause();
+            else if (key == 'u') chip8.unpause();
         }
 
         @Override
@@ -136,7 +138,7 @@ public class Test {
             int x = (e.getX() - 10) / (int) (10 * xScale);
             int y = (e.getY() - 30) / (int) (10 * yScale);
 
-            chip8.graphic[(y * 64) + x] = e.getButton() != 1;
+            chip8.setGraphic(x, y, e.getButton() != 1);
         }
 
         @Override
@@ -170,7 +172,7 @@ public class Test {
 
             for (int y = 0; y < 32; ++y) {
                 for (int x = 0; x < 64; ++x) {
-                    if (chip8.graphic[(y * 64) + x]) {
+                    if (chip8.getGraphic(x, y)) {
                         g.fillRect(x * xp, y * yp, xp, yp);
                     }
                 }
